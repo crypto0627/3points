@@ -5,7 +5,7 @@ import type { ISuccessResult } from "@worldcoin/idkit";
 import { verify } from "@/app/actions/verify";
 
 export default function SimulateVerify() {
-  const app_id = process.env.APP_ID as `app_${string}`;
+  const app_id = process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`;
   const action = "hello-world" as string;
 
   if (!app_id) {
