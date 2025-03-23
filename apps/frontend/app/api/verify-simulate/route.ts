@@ -1,31 +1,19 @@
-import { type IVerifyResponse, verifyCloudProof, ISuccessResult } from '@worldcoin/minikit-js'
-import { NextRequest, NextResponse } from 'next/server'
+import { type IVerifyResponse, verifyCloudProof } from '@worldcoin/idkit'
+import { NextApiRequest, NextApiResponse } from 'next/types'
 
-interface IRequestPayload {
-	payload: ISuccessResult;
-	action: string;
-	signal: string | undefined;
-}
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const proof = req.body
+    const app_id = process.env.APP_ID as `app_${string}`
+    const action = process.env.ACTION_ID as string
+	const verifyRes = (await verifyCloudProof(proof, app_id, action)) as IVerifyResponse
 
-export async function POST(req: NextRequest) {
-	const { payload, action, signal } = (await req.json()) as IRequestPayload;
-	const app_id = process.env.APP_ID as `app_${string}`;
-	const verifyRes = (await verifyCloudProof(
-		payload,
-		app_id,
-		action,
-		signal
-	)) as IVerifyResponse;
-
-	console.log(verifyRes);
-
-	if (verifyRes.success) {
-		// This is where you should perform backend actions if the verification succeeds
-		// Such as, setting a user as "verified" in a database
-		return NextResponse.json({ verifyRes, status: 200 });
-	} else {
-		// This is where you should handle errors from the World ID /verify endpoint. 
-		// Usually these errors are due to a user having already verified.
-		return NextResponse.json({ verifyRes, status: 400 });
-	}
-}
+    if (verifyRes.success) {
+        // This is where you should perform backend actions if the verification succeeds
+        // Such as, setting a user as "verified" in a database
+        res.status(200).send(verifyRes);
+    } else {
+        // This is where you should handle errors from the World ID /verify endpoint. 
+        // Usually these errors are due to a user having already verified.
+        res.status(400).send(verifyRes);
+    }
+};

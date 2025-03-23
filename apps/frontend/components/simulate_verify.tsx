@@ -25,18 +25,19 @@ export default function SimulateVerify() {
     );
   };
 
-  const handleProof = async (result: ISuccessResult) => {
-    console.log(
-      "Proof received from IDKit, sending to backend:\n",
-      JSON.stringify(result)
-    ); // Log the proof from IDKit to the console for visibility
-    const data = await verify(result);
-    if (data.success) {
-      console.log("Successful response from backend:\n", JSON.stringify(data)); // Log the response from our backend for visibility
-    } else {
-      throw new Error(`Verification failed: ${data.detail}`);
-    }
-  };
+
+const handleVerify = async (proof: ISuccessResult) => {
+  const res = await fetch("/api/verify-simulate", { // route to your backend will depend on implementation
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify(proof),
+  })
+  if (!res.ok) {
+      throw new Error("Verification failed."); // IDKit will display the error message to the user in the modal
+  }
+};
 
   return (
     <div>
@@ -46,7 +47,7 @@ export default function SimulateVerify() {
           action={action}
           app_id={app_id}
           onSuccess={onSuccess}
-          handleVerify={handleProof}
+          handleVerify={handleVerify}
           verification_level={VerificationLevel.Device} // Change this to VerificationLevel.Device to accept Orb- and Device-verified users
         />
         <button
